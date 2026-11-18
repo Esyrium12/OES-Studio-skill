@@ -1,0 +1,13 @@
+{
+  "redes": {
+    "tiktok":    { "activa": false, "modo": "aprobacion", "maxPorDia": 1, "metodo": "" },
+    "instagram": { "activa": false, "modo": "aprobacion", "maxPorDia": 1, "metodo": "" },
+    "youtube":   { "activa": false, "modo": "aprobacion", "maxPorDia": 1, "metodo": "" },
+    "facebook":  { "activa": false, "modo": "aprobacion", "maxPorDia": 1, "metodo": "" }
+  },
+  "frecuencia": "diaria",
+  "horaCiclo": "09:00",
+  "voz": { "proveedor": "elevenlabs", "voiceId": null },
+  "montaje": "remotion",
+  "credenciales": "solo variables de entorno: ELEVENLABS_API_KEY, YOUTUBE_*, META_*, TIKTOK_*, AYRSHARE_API_KEY"
+}

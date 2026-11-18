@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "SessionStart": [
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/oes-watch.js\" SessionStart", "timeout": 5 } ] }
+    ],
+    "UserPromptSubmit": [
+      { "hooks": [
+        { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/context-guard.js\"", "timeout": 5 },
+        { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/oes-watch.js\" UserPromptSubmit", "timeout": 3 }
+      ] }
+    ],
+    "PreToolUse": [
+      { "matcher": "Task|Agent", "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/oes-watch.js\" PreToolUse", "timeout": 3 } ] }
+    ],
+    "PostToolUse": [
+      { "matcher": "Task|Agent", "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/oes-watch.js\" PostToolUse", "timeout": 3 } ] }
+    ],
+    "SubagentStop": [
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/oes-watch.js\" SubagentStop", "timeout": 3 } ] }
+    ],
+    "Stop": [
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/oes-watch.js\" Stop", "timeout": 3 } ] }
+    ],
+    "PreCompact": [
+      { "hooks": [ { "type": "command", "command": "node \"${CLAUDE_PLUGIN_ROOT}/scripts/oes-watch.js\" PreCompact", "timeout": 3 } ] }
+    ]
+  }
+}
