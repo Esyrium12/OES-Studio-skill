@@ -49,39 +49,101 @@ const CONOCIDOS = ['impeccable', 'caveman', 'claude-mem', 'graphify', 'oes'];
 const esConocido = n => CONOCIDOS.find(c => lower(n).includes(c));
 
 // ---------- Plugins ----------
+const isDir = p => { try { return fs.statSync(p).isDirectory(); } catch (_) { return false; } };
+const subdirs = d => ls(d).filter(e => !e.name.startsWith('.') && isDir(path.join(d, e.name))).map(e => e.name);
+const base = p => String(p).split('@')[0];
+// Skills que trae un plugin: carpeta skills/ más las rutas que declare "skills" en su plugin.json.
+const skillsDePlugin = (dir, man) => {
+  const extra = [].concat((man && man.skills) || []).filter(s => typeof s === 'string');
+  const roots = [...new Set(['skills', ...extra].map(s => path.resolve(dir, s)))];
+  const names = new Set();
+  for (const r of roots) {
+    if (fs.existsSync(path.join(r, 'SKILL.md'))) names.add(path.basename(r));
+    else for (const s of subdirs(r)) names.add(s);
+  }
+  return names;
+};
 const inst = L.readJSON(path.join(C, 'plugins', 'installed_plugins.json'), {});
 const instPlugins = Object.keys(inst.plugins || inst || {}).filter(k => k.includes('@'));
 const settings = L.readJSON(path.join(C, 'settings.json'), {});
 const enabled = settings.enabledPlugins || {};
-const allPlugins = [...new Set([...instPlugins, ...Object.keys(enabled)])];
+const allPlugins = [...new Set([...instPlugins, ...Object.keys(enabled)])].filter(p => !p.endsWith('@synced'));
+// Plugins sincronizados desde claude.ai: ~/.claude/plugins/synced/<org>_<id>/<carpeta>/.claude-plugin/plugin.json
+// (en `claude plugin list` aparecen como <nombre>@synced).
+const synced = {};
+const sd = path.join(C, 'plugins', 'synced');
+for (const org of subdirs(sd)) for (const pd of subdirs(path.join(sd, org))) {
+  const dir = path.join(sd, org, pd);
+  const man = L.readJSON(path.join(dir, '.claude-plugin', 'plugin.json'), null);
+  if (man && typeof man.name === 'string' && man.name && !synced[man.name]) synced[man.name] = { dir, man };
+}
+const wantPorBase = {};
+for (const p of Object.keys(WANT.plugins)) wantPorBase[base(p)] = p;
 for (const p of allPlugins) {
   const on = enabled[p] !== false;
-  const q = quitarMotivo(p.split('@')[0]);
-  if (WANT.plugins[p]) push('plugin', p, on ? 'activo' : 'desactivado', 'útil', WANT.plugins[p], on ? 'dejar' : 'activar');
+  const q = quitarMotivo(base(p));
+  if (synced[base(p)]) push('plugin', p, on ? 'activo' : 'desactivado', 'duplicado', `Ya viene sincronizado desde claude.ai como ${base(p)}@synced: quedan dos copias`, 'desinstalar la copia local');
+  else if (WANT.plugins[p]) push('plugin', p, on ? 'activo' : 'desactivado', 'útil', WANT.plugins[p], on ? 'dejar' : 'activar');
   else if (q) push('plugin', p, on ? 'activo' : 'desactivado', 'conviene quitar', q, 'desinstalar');
   else push('plugin', p, on ? 'activo' : 'desactivado', 'neutro', 'No es parte de OES; no choca', 'decidir');
 }
-for (const p of Object.keys(WANT.plugins)) if (!allPlugins.includes(p) && p !== 'oes@oes-studio') { out.faltan.plugins.push(p); push('plugin', p, 'no instalado', 'falta', WANT.plugins[p], 'instalar'); }
+for (const name of Object.keys(synced)) {
+  const id = name + '@synced';
+  const on = enabled[id] !== false;
+  const estado = 'sincronizado desde claude.ai' + (on ? '' : ' (desactivado)');
+  const w = wantPorBase[name];
+  const q = quitarMotivo(name);
+  if (w) push('plugin', id, estado, 'útil', WANT.plugins[w] + (w === id ? '' : ` (equivale a ${w})`), on ? 'dejar' : 'activar');
+  else if (skillsDePlugin(synced[name].dir, synced[name].man).has(WANT.skillsSupabase)) push('plugin', id, estado, 'útil', 'Trae las skills de Supabase (cubre supabase agent-skills)', on ? 'dejar' : 'activar');
+  else if (q) push('plugin', id, estado, 'conviene quitar', q, 'quitar de la cuenta en claude.ai');
+  else push('plugin', id, estado, 'neutro', 'No es parte de OES; no choca', 'decidir (se gestiona en claude.ai)');
+}
+for (const p of Object.keys(WANT.plugins)) if (!allPlugins.includes(p) && !synced[base(p)] && p !== 'oes@oes-studio') { out.faltan.plugins.push(p); push('plugin', p, 'no instalado', 'falta', WANT.plugins[p], 'instalar'); }
 
-// ---------- Skills (usuario y proyecto) ----------
+// ---------- Skills (usuario, proyecto y sincronizadas desde claude.ai) ----------
 const skillLoc = {};
+const addSkill = (name, scope) => { const w = (skillLoc[name] = skillLoc[name] || []); if (!w.includes(scope)) w.push(scope); };
+// ~/.claude/skills/synced no es una skill: es la carpeta de sincronización de claude.ai (synced/<org>_<id>/<skill>/SKILL.md).
+const skillsSincronizadas = root => {
+  const r = [];
+  for (const a of subdirs(root)) {
+    const pa = path.join(root, a);
+    if (fs.existsSync(path.join(pa, 'SKILL.md'))) { r.push(a); continue; }
+    for (const b of subdirs(pa)) if (fs.existsSync(path.join(pa, b, 'SKILL.md'))) r.push(b);
+  }
+  return r;
+};
 for (const [scope, dir] of [['usuario', path.join(C, 'skills')], ['proyecto', path.join(proj, '.claude', 'skills')]]) {
-  for (const e of ls(dir)) if (e.isDirectory() || e.isSymbolicLink()) (skillLoc[e.name] = skillLoc[e.name] || []).push(scope);
+  for (const e of ls(dir)) {
+    if (!(e.isDirectory() || e.isSymbolicLink()) || e.name.startsWith('.')) continue;
+    if (scope === 'usuario' && e.name === 'synced' && !fs.existsSync(path.join(dir, e.name, 'SKILL.md'))) {
+      for (const s of skillsSincronizadas(path.join(dir, e.name))) addSkill(s, 'claude.ai');
+      continue;
+    }
+    addSkill(e.name, scope);
+  }
 }
-// skills que vienen dentro de plugins instalados
+// Skills que ya trae Claude Code (no las instala el usuario).
+const INTEGRADAS = { 'session-start-hook': 'Integrada en Claude Code (la crean las sesiones en la nube)' };
+// skills que vienen dentro de plugins instalados (caché) y sincronizados desde claude.ai
 const pluginSkills = {};
+const addPluginSkill = (s, pl) => (pluginSkills[s] = pluginSkills[s] || new Set()).add(pl);
 const pc = path.join(C, 'plugins', 'cache');
-for (const m of ls(pc)) for (const pl of ls(path.join(pc, m.name))) for (const v of ls(path.join(pc, m.name, pl.name))) {
-  for (const s of ls(path.join(pc, m.name, pl.name, v.name, 'skills'))) (pluginSkills[s.name] = pluginSkills[s.name] || new Set()).add(pl.name);
+for (const m of subdirs(pc)) for (const pl of subdirs(path.join(pc, m))) for (const v of subdirs(path.join(pc, m, pl))) {
+  const dir = path.join(pc, m, pl, v);
+  for (const s of skillsDePlugin(dir, L.readJSON(path.join(dir, '.claude-plugin', 'plugin.json'), null))) addPluginSkill(s, pl);
 }
+for (const [name, { dir, man }] of Object.entries(synced)) for (const s of skillsDePlugin(dir, man)) addPluginSkill(s, name + '@synced');
 for (const [name, where] of Object.entries(skillLoc)) {
   const enPlugin = pluginSkills[name] ? [...pluginSkills[name]] : [];
   const q = quitarMotivo(name);
   if (where.length > 1 || enPlugin.length) push('skill', name, where.join(' + ') + (enPlugin.length ? ' + plugin ' + enPlugin.join(',') : ''), 'duplicado', 'Misma skill en más de un lugar: se activa dos veces o se pisa', 'dejar una sola copia');
-  else if (q) push('skill', name, where[0], 'conviene quitar', q, 'quitar');
+  else if (INTEGRADAS[name] && where[0] === 'usuario') push('skill', name, 'integrada', 'útil', INTEGRADAS[name], 'dejar');
+  else if (q) push('skill', name, where[0], 'conviene quitar', q, where[0] === 'claude.ai' ? 'quitar de la cuenta en claude.ai' : 'quitar');
   else if (['frontend-design', 'figma-use', 'playwright', 'caveman'].includes(name)) push('skill', name, where[0], 'duplicado', 'OES lo instala como plugin: quedarían dos copias', 'quitar la skill suelta o excluir el plugin');
   else if (WANT.skills.includes(name) || name.startsWith('supabase') || name.startsWith('graphify') || name.startsWith('impeccable')) push('skill', name, where[0], 'útil', 'Parte del flujo OES', 'dejar');
   else if (SIN_USO_OES.includes(name)) push('skill', name, where[0], 'neutro', 'Útil solo para prototipos rápidos', 'decidir');
+  else if (where[0] === 'claude.ai') push('skill', name, 'sincronizada desde claude.ai', 'neutro', 'Skill de tu cuenta de claude.ai; no es parte de OES', 'decidir (se gestiona en claude.ai)');
   else push('skill', name, where[0], 'neutro', 'No es parte de OES; solo ocupa su descripción en contexto', 'decidir');
 }
 const tieneImpeccable = Object.keys(skillLoc).some(n => n.startsWith('impeccable')) || Object.keys(pluginSkills).some(n => n.startsWith('impeccable'));
@@ -89,7 +151,11 @@ for (const s of WANT.skills) {
   const ok = s === 'impeccable' ? tieneImpeccable : (skillLoc[s] || pluginSkills[s]);
   if (!ok) { out.faltan.skills.push(s); push('skill', s, 'no instalada', 'falta', 'Parte del flujo de diseño OES', 'instalar'); }
 }
-if (!Object.keys(skillLoc).some(n => n.startsWith('supabase'))) { out.faltan.skills.push('supabase'); push('skill', 'supabase agent-skills', 'no instalada', 'falta', 'Buenas prácticas y seguridad de Supabase', 'instalar'); }
+// supabase agent-skills: sueltas en skills/ o incluidas en un plugin (p. ej. supabase@synced trae supabase y supabase-postgres-best-practices)
+const supaPlugin = pluginSkills[WANT.skillsSupabase] ? [...pluginSkills[WANT.skillsSupabase]] : [];
+const supaSuelta = Object.keys(skillLoc).some(n => n.startsWith(WANT.skillsSupabase)); // si están sueltas ya se listaron arriba
+if (!supaSuelta && supaPlugin.length) push('skill', 'supabase agent-skills', 'incluidas en plugin ' + supaPlugin.join(','), 'útil', 'Buenas prácticas y seguridad de Supabase', 'dejar');
+else if (!supaSuelta) { out.faltan.skills.push('supabase'); push('skill', 'supabase agent-skills', 'no instalada', 'falta', 'Buenas prácticas y seguridad de Supabase', 'instalar'); }
 
 // ---------- Conectores MCP ----------
 const cj = L.readJSON(path.join(L.os.homedir(), '.claude.json'), {});
