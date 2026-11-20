@@ -1,5 +1,11 @@
 # Cambios
 
+## 1.2.0 — 2026-11-20
+- Consejo OES (`/oes:consejo` y skill `consejo`): 5 asesores en paralelo, revisión cruzada anónima y veredicto del presidente (Opus). Modos `rapido`, `normal` y `profundo`. Basado en el LLM Council de Karpathy, en la versión de Ole Lehmann.
+- Agentes nuevos: `consejero` (Sonnet), `revisor-consejo` (Haiku), `presidente` (Opus).
+- Claude propone el consejo antes de decisiones caras o difíciles de revertir.
+- Integración con `/oes:idea`, `/oes:opinion` y `planner`.
+
 ## 1.1.0 — 2026-11-18
 - Comandos cortos `/oes:`.
 - Nuevos: `dato`, `idea`, `limite`, `continuar`, `resumen`, `analisis`, `opinion`, `social`, `feature`, `bug`, `commit`, `deploy`, `ayuda`.

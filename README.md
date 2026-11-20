@@ -45,8 +45,9 @@ El plugin trabaja en 4 capas:
 | Capa | Qué hace | Dónde vive |
 |---|---|---|
 | **Skill `oes-studio`** | Reglas de trabajo: quién hace qué, flujo, diseño, Graphify, consumo | `plugin/skills/oes-studio/` |
-| **Agentes** | 7 subagentes con su modelo y sus permisos | se copian a `~/.claude/agents/` |
-| **Comandos** | 22 atajos `/oes:` para tareas frecuentes | `plugin/commands/` |
+| **Skill `consejo`** | Consejo de asesores para decisiones | `plugin/skills/consejo/` |
+| **Agentes** | 10 subagentes con su modelo y sus permisos (7 de trabajo + 3 del consejo) | se copian a `~/.claude/agents/` |
+| **Comandos** | 23 atajos `/oes:` para tareas frecuentes | `plugin/commands/` |
 | **Hooks y scripts** | Statusline, avisos de contexto y límites, registro de agentes, auditoría | `plugin/hooks/`, `plugin/scripts/` |
 
 ### Equipo y modelos
@@ -61,6 +62,7 @@ El plugin trabaja en 4 capas:
 | `designer` | Sonnet | Páginas, UI y animación |
 | `tester` | Sonnet | Tests, pruebas E2E con Playwright y build roto |
 | `notes` | Haiku | Docs y notas de Obsidian |
+| Consejo: `consejero` ×5, `revisor-consejo` ×5, `presidente` | Sonnet, Haiku, Opus | Decisiones importantes (ver abajo) |
 
 Se considera **código crítico**: auth, pagos y suscripciones, migraciones y RLS, concurrencia, sincronización de stock en tiempo real, algoritmos complejos, o cuando Sonnet falló 2 veces en lo mismo.
 
@@ -76,6 +78,19 @@ Se considera **código crítico**: auth, pagos y suscripciones, migraciones y RL
 
 Las respuestas van en **modo cavernícola**: solo lo importante, sin narrar pasos.
 
+### El consejo
+
+Para decisiones con algo en juego, como "¿cobro mensual o anual en Nodelier?" o "¿migro a otro stack?". Se basa en el método LLM Council de Andrej Karpathy, en la versión para Claude de Ole Lehmann:
+
+1. **5 asesores en paralelo**, cada uno con un enfoque: el Contrario (qué va a fallar), Primeros principios (qué se resuelve de verdad), el Expansionista (qué potencial no se ve), el de Afuera (qué no entiende alguien sin contexto) y el Ejecutor (qué se hace el lunes).
+2. **Revisión cruzada anónima**: las respuestas se mezclan como A-E y 5 revisores eligen la más sólida, el mayor punto ciego y lo que se les pasó a todas.
+3. **El presidente (Opus) da el veredicto**: dónde coinciden, dónde chocan, puntos ciegos, una recomendación sin "depende" y un único primer paso.
+4. Todo queda guardado en `docs/consejo/`.
+
+Tiene 3 modos: `rapido` (3 asesores, sin revisión), `normal` y `profundo` (con datos del proyecto e investigación web). Antes de decisiones caras, Claude lo propone; no lo ejecuta solo.
+
+Límite: los asesores son el mismo modelo con distinto enfoque. Reduce el "decirte que sí", pero no reemplaza tu criterio.
+
 ## Comandos
 
 | Comando | Para qué sirve |
@@ -89,6 +104,7 @@ Las respuestas van en **modo cavernícola**: solo lo importante, sin narrar paso
 | `/oes:diseno` | Diseño de página o app en 3 fases: diagnóstico, plan y tu aprobación, implementación |
 | `/oes:dato` | Guarda un dato o información donde corresponde |
 | `/oes:idea` | Registra una idea y analiza su viabilidad con puntaje y veredicto |
+| `/oes:consejo` | Consejo de 5 asesores: analizan por separado, se revisan en forma anónima y un presidente da el veredicto |
 | `/oes:resumen` | Resumen completo: hecho, por hacer, ideas, recomendaciones y lo que tenés que hacer vos |
 | `/oes:analisis` | Busca errores, qué mejorar, qué perfeccionar y qué quitar |
 | `/oes:opinion` | Opinión neutral con datos del proyecto e investigación del mercado |
@@ -135,7 +151,7 @@ Detalle de cada comando, con lo que hace y los archivos que genera: **[docs/COMA
    Después reiniciá la terminal y Claude Code, y repetí `/oes:setup`.
 7. **Comprobar que quedó bien:**
    - Abajo aparece la statusline: `Opus │ ctx ███░░ 30% │ 5h 12% │ sem 4% │ $0.40`.
-   - `/agents` muestra los 7 agentes.
+   - `/agents` muestra los 10 agentes.
    - `/oes:ayuda` muestra los comandos.
 8. **En cada proyecto:** abrí Claude Code en la carpeta y escribí `/oes:proyecto`.
 
@@ -143,7 +159,7 @@ Detalle de cada comando, con lo que hace y los archivos que genera: **[docs/COMA
 
 **Desinstalar:**
 - `/plugin uninstall oes@oes-studio`.
-- Borrar los 7 agentes de `~/.claude/agents/`.
+- Borrar los 10 agentes de `~/.claude/agents/`.
 - Borrar el bloque `<!-- OES:START … OES:END -->` de `~/.claude/CLAUDE.md`.
 - Borrar `statusLine` de `~/.claude/settings.json`.
 - Borrar la carpeta `~/.claude/oes/`.
@@ -168,8 +184,9 @@ OES-Studio-skill/
 │   ├── .claude-plugin/plugin.json    # plugin "oes"
 │   ├── .mcp.json                     # Supabase, Vercel, Context7
 │   ├── skills/oes-studio/            # skill principal + referencias (modelos, diseño, Obsidian, herramientas)
-│   ├── agents-templates/             # 7 agentes
-│   ├── commands/                     # 22 comandos /oes:
+│   ├── skills/consejo/               # consejo de asesores
+│   ├── agents-templates/             # 10 agentes
+│   ├── commands/                     # 23 comandos /oes:
 │   ├── hooks/hooks.json              # inicio de sesión, prompt, agentes, cierre
 │   ├── scripts/                      # statusline, guardián, vigilador, auditoría, informes, setup.ps1, panel.ps1
 │   ├── templates/                    # CLAUDE.md global y de proyecto, docs, equipo social
@@ -178,7 +195,7 @@ OES-Studio-skill/
 └── docs/COMANDOS.md
 ```
 
-Cada proyecto queda así: `CLAUDE.md` corto, más `docs/` con `plans/`, `decisiones.md`, `estado.md`, `datos.md`, `ideas/`, `analisis/`, `opinion/`, `resumen.md` y `handoff.md`, más `social/` si usás redes.
+Cada proyecto queda así: `CLAUDE.md` corto, más `docs/` con `plans/`, `decisiones.md`, `estado.md`, `datos.md`, `ideas/`, `consejo/`, `analisis/`, `opinion/`, `resumen.md` y `handoff.md`, más `social/` si usás redes.
 
 ## Privacidad y seguridad
 
@@ -197,6 +214,7 @@ Cada proyecto queda así: `CLAUDE.md` corto, más `docs/` con `plans/`, `decisio
 
 ## Créditos
 
+- Consejo: método [LLM Council](https://github.com/karpathy/llm-council) de Andrej Karpathy, en la versión para Claude de [Ole Lehmann](https://github.com/aiwithremy/claude-skills-llm-council) (reescrita en español).
 - Reglas de código destiladas de [Everything Claude Code (ECC)](https://github.com/affaan-m/ECC), MIT, Affaan Mustafa.
 - Panel de agentes: [disler/claude-code-hooks-multi-agent-observability](https://github.com/disler/claude-code-hooks-multi-agent-observability).
 - Herramientas que instala: [caveman](https://github.com/JuliusBrussee/caveman), [claude-mem](https://github.com/thedotmack/claude-mem), [Graphify](https://github.com/safishamsi/graphify), [impeccable](https://github.com/pbakaus/impeccable), [skills de Emil Kowalski](https://github.com/emilkowalski/skills), [Supabase agent-skills](https://github.com/supabase/agent-skills).

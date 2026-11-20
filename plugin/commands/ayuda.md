@@ -13,6 +13,7 @@ Mostrar esta tabla tal cual, sin agregar nada:
 | /oes:diseno | Diseño de página o app en 3 fases |
 | /oes:dato | Guardar un dato o información |
 | /oes:idea | Registrar una idea y analizar su viabilidad |
+| /oes:consejo | Consejo de 5 asesores con revisión anónima y veredicto |
 | /oes:resumen | Resumen completo: hecho, por hacer, ideas, recomendaciones, tus tareas |
 | /oes:analisis | Buscar errores, mejoras, qué perfeccionar y qué quitar |
 | /oes:opinion | Opinión neutral con datos del proyecto y del mercado |

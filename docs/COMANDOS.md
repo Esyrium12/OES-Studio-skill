@@ -94,6 +94,18 @@ No cambia nada sin tu respuesta.
 - Da un veredicto: **hacer ahora / hacer después / versión mínima / descartar**.
 **Genera:** `docs/ideas/AAAA-MM-DD-slug.md` y el índice `docs/ideas/README.md`.
 
+### `/oes:consejo [rapido|normal|profundo] <decisión>`
+**Para qué:** decidir mejor cuando hay algo en juego, sin quedarte con una sola opinión que te da la razón.
+**Cómo funciona:**
+1. Arma una pregunta enmarcada y neutral con el contexto del proyecto (`CLAUDE.md`, datos, decisiones, ideas). En modo `profundo` suma datos del código y búsquedas web.
+2. 5 asesores responden en paralelo, cada uno desde su enfoque: Contrario, Primeros principios, Expansionista, De afuera y Ejecutor.
+3. Las respuestas se anonimizan (A-E) y 5 revisores eligen la más sólida, el mayor punto ciego y lo que se les pasó a todas.
+4. El presidente (Opus) da el veredicto: dónde coinciden, dónde chocan, puntos ciegos, una recomendación concreta y el primer paso.
+
+**Modos:** `rapido` (3 asesores, sin revisión, barato), `normal` (por defecto) y `profundo`.
+**Genera:** `docs/consejo/AAAA-MM-DD-tema.md`. Si adoptás la recomendación, también una línea en `docs/decisiones.md`.
+**Créditos:** método LLM Council de Karpathy, en la versión de Ole Lehmann.
+
 ### `/oes:resumen`
 **Para qué:** foto completa del proyecto.
 **Cómo funciona:** junta docs, planes, ideas, commits, TODOs, issues y PRs. Escribe: qué es, hecho, en curso, por hacer priorizado, ideas, recomendaciones y **qué tenés que hacer vos**.

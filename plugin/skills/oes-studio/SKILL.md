@@ -31,6 +31,7 @@ Si `~/.claude/oes/installed.json` no existe → decir "Falta configurar: ejecut�
 | `designer` | subagente | Sonnet | Páginas, UI, estética, animaciones |
 | `tester` | subagente | Sonnet | Tests, E2E con Playwright, arreglar build roto |
 | `notes` | subagente | Haiku | Notas de Obsidian, README, docs, changelog |
+| Consejo | `consejero` ×5 + `revisor-consejo` ×5 + `presidente` | Sonnet / Haiku / Opus | Decisiones con algo en juego (skill `consejo`, `/oes:consejo`) |
 
 Reglas de delegación:
 - Leer más de 3 archivos o buscar en el repo → `Explore` (nunca leer en masa desde la sesión principal).
@@ -52,6 +53,8 @@ Reglas de delegación:
 7. **Cierre**: resumen cavernícola (qué cambió, dónde, qué falta). `notes` actualiza `docs/decisiones.md` si hubo decisiones. Commit solo si el usuario lo pide.
 
 Acciones irreversibles (borrar datos, migraciones en producción, deploy a producción, push forzado) → siempre preguntar antes.
+
+Decisiones caras o difíciles de revertir (cambio de stack o arquitectura, precios, gastar dinero, más de 1 semana de trabajo) → proponer `/oes:consejo` en una línea antes de decidir.
 
 ## 4. Diseño de páginas y UI
 
@@ -78,7 +81,7 @@ Usar `/oes:diseno` o seguir `references/diseno.md`. Resumen:
 
 ## 6b. Comandos
 
-`/oes:ayuda` lista todos. Los más usados: `feature`, `bug`, `diseno`, `dato`, `idea`, `resumen`, `analisis`, `opinion`, `social`, `limite`, `continuar`, `commit`, `deploy`.
+`/oes:ayuda` lista todos. Los más usados: `consejo`, `feature`, `bug`, `diseno`, `dato`, `idea`, `resumen`, `analisis`, `opinion`, `social`, `limite`, `continuar`, `commit`, `deploy`.
 - Límite de 5 h ≥ 90 % o semanal ≥ 95 % → el hook avisa: proponer `/oes:limite`.
 - Al abrir sesión con `docs/handoff.md` pendiente → proponer `/oes:continuar`.
 

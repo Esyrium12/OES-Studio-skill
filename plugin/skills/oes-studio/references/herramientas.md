@@ -33,6 +33,7 @@ Descartados por ahora: Perplexity, PostHog, Composio.
 Excluidas: write-swift, animate-expo, ask-sonner (no aplican a tus proyectos).
 
 ## Propio del plugin
+- Skill `consejo` + agentes `consejero`, `revisor-consejo`, `presidente` (método LLM Council de Karpathy / Ole Lehmann).
 - Statusline OES (modelo, contexto, ventanas, costo).
 - Guardián de contexto (aviso a 70 % y 85 %).
 - Vigilador de agentes (registro local + panel visual opcional).

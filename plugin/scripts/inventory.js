@@ -115,12 +115,12 @@ for (const m of mcps) {
 }
 
 // ---------- Agentes ----------
-const OES_AG = ['Explore', 'planner', 'implementer', 'reviewer', 'designer', 'tester', 'notes'];
+const OES_AG = ['Explore', 'planner', 'implementer', 'reviewer', 'designer', 'tester', 'notes', 'consejero', 'revisor-consejo', 'presidente'];
 for (const e of ls(path.join(C, 'agents'))) {
   if (!e.name.endsWith('.md')) continue;
   const n = e.name.replace(/\.md$/, '');
   const t = (() => { try { return fs.readFileSync(path.join(C, 'agents', e.name), 'utf8'); } catch (_) { return ''; } })();
-  const esOes = t.includes('equipo OES');
+  const esOes = t.includes('equipo OES') || t.includes('Consejo OES');
   if (!OES_AG.includes(n) && esConocido(n)) { push('agente', n, 'usuario', 'útil', `Viene con ${esConocido(n)}`, 'dejar'); continue; }
   if (OES_AG.includes(n)) push('agente', n, 'usuario', esOes ? 'útil' : 'duplicado', esOes ? 'Agente OES' : 'Mismo nombre que un agente OES: se reemplazará (con copia .bak)', esOes ? 'dejar' : 'reemplazar');
   else push('agente', n, 'usuario', 'neutro', 'Agente propio no OES', 'decidir');
