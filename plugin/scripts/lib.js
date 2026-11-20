@@ -23,6 +23,19 @@ function readJSONL(p) {
 }
 function safeId(s) { return String(s || 'unknown').replace(/[^a-zA-Z0-9_-]/g, '_'); }
 
+// ¿Dos rutas son la misma carpeta? Resuelve symlinks/junctions si existen; en Windows sin distinguir mayúsculas.
+// Si ambas existen, compara también dispositivo + inodo (cubre bind mounts y diferencias de mayúsculas en macOS).
+function samePath(a, b) {
+  const real = p => { try { return fs.realpathSync.native(p); } catch (_) { return path.resolve(p); } };
+  let x = real(a), y = real(b);
+  if (process.platform === 'win32') { x = x.toLowerCase(); y = y.toLowerCase(); }
+  if (x === y) return true;
+  try {
+    const s = fs.statSync(a, { bigint: true }), t = fs.statSync(b, { bigint: true });
+    return s.ino !== 0n && s.dev === t.dev && s.ino === t.ino;
+  } catch (_) { return false; }
+}
+
 // Contexto real del último turno leyendo el transcript (fallback cuando la statusline no trae el dato).
 function contextFromTranscript(transcriptPath, modelId) {
   try {
@@ -48,4 +61,4 @@ function contextFromTranscript(transcriptPath, modelId) {
   return null;
 }
 
-module.exports = { fs, path, os, CLAUDE_DIR, OES, STATE, ensureDir, readJSON, writeJSON, appendLine, readStdin, readJSONL, safeId, contextFromTranscript };
+module.exports = { fs, path, os, CLAUDE_DIR, OES, STATE, ensureDir, readJSON, writeJSON, appendLine, readStdin, readJSONL, safeId, samePath, contextFromTranscript };

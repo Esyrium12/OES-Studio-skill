@@ -40,7 +40,7 @@ const QUITAR = {
 };
 const SIN_USO_OES = ['prototype'];
 
-const out = { proyecto: proj, items: [], faltan: { plugins: [], skills: [], cli: [] } };
+const out = { proyecto: proj, avisos: [], items: [], faltan: { plugins: [], skills: [], cli: [] } };
 const push = (tipo, nombre, estado, veredicto, motivo, accion) => out.items.push({ tipo, nombre, estado, veredicto, motivo, accion });
 const lower = s => String(s).toLowerCase();
 const esc = x => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -65,7 +65,14 @@ for (const p of Object.keys(WANT.plugins)) if (!allPlugins.includes(p) && p !== 
 
 // ---------- Skills (usuario y proyecto) ----------
 const skillLoc = {};
-for (const [scope, dir] of [['usuario', path.join(C, 'skills')], ['proyecto', path.join(proj, '.claude', 'skills')]]) {
+const userSkills = path.join(C, 'skills'), projSkills = path.join(proj, '.claude', 'skills');
+const skillScopes = [['usuario', userSkills]];
+// Abierto en la carpeta de usuario (o .claude/skills enlazada a la de usuario): es la misma carpeta, no un duplicado.
+if (!L.samePath(projSkills, userSkills)) skillScopes.push(['proyecto', projSkills]);
+else out.avisos.push(L.samePath(proj, L.os.homedir())
+  ? 'Auditoría corrida desde la carpeta de usuario: se omitió el chequeo de skills de proyecto (.claude/skills es la misma que la de usuario).'
+  : 'La carpeta .claude/skills del proyecto es la misma que la de usuario: se omitió el chequeo de skills de proyecto.');
+for (const [scope, dir] of skillScopes) {
   for (const e of ls(dir)) if (e.isDirectory() || e.isSymbolicLink()) (skillLoc[e.name] = skillLoc[e.name] || []).push(scope);
 }
 // skills que vienen dentro de plugins instalados
@@ -160,6 +167,7 @@ if (asJson) { process.stdout.write(JSON.stringify(out, null, 2)); process.exit(0
 L.writeJSON(path.join(L.OES, 'audit.json'), out);
 const orden = { 'conviene quitar': 0, 'duplicado': 1, 'falta': 2, 'neutro': 3, 'útil': 4 };
 console.log(`## Auditoría OES · ${new Date().toLocaleString('es-AR')}\n`);
+for (const a of out.avisos) console.log(`> ${a}\n`);
 console.log('| Veredicto | Tipo | Elemento | Estado | Motivo | Acción sugerida |\n|---|---|---|---|---|---|');
 out.items.sort((a, b) => orden[a.veredicto] - orden[b.veredicto]).forEach(i => console.log(`| ${i.veredicto} | ${i.tipo} | ${i.nombre} | ${i.estado} | ${i.motivo} | ${i.accion} |`));
 const cnt = v => out.items.filter(i => i.veredicto === v).length;

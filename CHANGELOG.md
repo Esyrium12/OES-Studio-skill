@@ -1,5 +1,8 @@
 # Cambios
 
+## Sin publicar
+- `inventory.js`: abierto en la carpeta de usuario, ya no marca cada skill de usuario como "duplicado" (`~/.claude/skills` y `.claude/skills` del proyecto eran la misma carpeta). Compara rutas resueltas (symlinks/junctions; en Windows sin distinguir mayúsculas) y muestra un aviso de que se omitió el chequeo de skills de proyecto.
+
 ## 1.2.0 — 2026-11-20
 - Consejo OES (`/oes:consejo` y skill `consejo`): 5 asesores en paralelo, revisión cruzada anónima y veredicto del presidente (Opus). Modos `rapido`, `normal` y `profundo`. Basado en el LLM Council de Karpathy, en la versión de Ole Lehmann.
 - Agentes nuevos: `consejero` (Sonnet), `revisor-consejo` (Haiku), `presidente` (Opus).
