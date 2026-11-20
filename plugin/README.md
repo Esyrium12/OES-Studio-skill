@@ -45,7 +45,7 @@ Guía completa: [README del repo](../README.md) · [Comandos en detalle](../docs
 
 ## Qué instala
 
-- **Agentes** (`~/.claude/agents/`): Explore (Haiku), planner (Opus), implementer (Sonnet; Opus en código crítico), reviewer, designer, tester (Sonnet), notes (Haiku) y el consejo: consejero (Sonnet), revisor-consejo (Haiku), presidente (Opus).
+- **Agentes** (en el plugin, `oes:<agente>`; Explore en `~/.claude/agents/`): Explore (Haiku), planner (Opus), implementer (Sonnet; Opus en código crítico), reviewer, designer, tester (Sonnet), notes (Haiku) y el consejo: consejero (Sonnet), revisor-consejo (Haiku), presidente (Opus).
 - **Conectores**: Supabase, Vercel, Context7 (en el plugin), Playwright (plugin oficial), Firecrawl si definís `FIRECRAWL_API_KEY`. GitHub con `gh`.
 - **Plugins**: caveman, claude-mem, claude-code-setup, frontend-design, figma, playwright.
 - **Skills**: impeccable (con hook de diseño), Emil Kowalski (emil-design-eng, animate, review-animations, improve-animations, find-animation-opportunities, apple-design, mobile-native, break-ui, animation-vocabulary, pick-ui-library), Supabase agent-skills, Graphify.
@@ -61,4 +61,4 @@ Reglas destiladas de [Everything Claude Code](https://github.com/affaan-m/ECC) (
 
 ## Desinstalar
 
-`/plugin uninstall oes@oes-studio`, borrar los 10 agentes de `~/.claude/agents/`, el bloque entre `<!-- OES:START -->` y `<!-- OES:END -->` de `~/.claude/CLAUDE.md`, la `statusLine` de `~/.claude/settings.json` y la carpeta `~/.claude/oes/`.
+`/plugin uninstall oes@oes-studio`, borrar `~/.claude/agents/Explore.md`, el bloque entre `<!-- OES:START -->` y `<!-- OES:END -->` de `~/.claude/CLAUDE.md`, la `statusLine` de `~/.claude/settings.json` y la carpeta `~/.claude/oes/`.

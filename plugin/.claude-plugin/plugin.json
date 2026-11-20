@@ -1,6 +1,6 @@
 {
   "name": "oes",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "description": "OES-Studio-skill: orquestación Opus/Sonnet/Haiku, conectores, skills de diseño, modo cavernícola, Graphify, vigilador de agentes y analizadores de consumo y contexto. Para Windows.",
   "author": {
     "name": "Michael Hofer (Obsidian Edge Studio)"

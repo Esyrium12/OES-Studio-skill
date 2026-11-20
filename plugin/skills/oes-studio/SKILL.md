@@ -40,6 +40,7 @@ Reglas de delegación:
 - Pedir a cada subagente resultado corto: archivos tocados, qué cambió, qué falta. Nada de volcar archivos enteros.
 - **Escalar a Opus**: lanzar `implementer` con `model: opus` cuando el código es crítico (auth, pagos y suscripciones, migraciones y RLS de Supabase, concurrencia, sincronización de stock en tiempo real, algoritmos complejos) o cuando Sonnet falló 2 veces en lo mismo. El resto, Sonnet.
 - El `Explore` propio reemplaza al integrado (que usaría Opus). No crear otro con ese nombre.
+- Nombres: los demás agentes vienen en el plugin y se lanzan como `oes:<nombre>` (`oes:planner`, `oes:implementer`, `oes:consejero`…). Si en la lista de agentes aparecen sin prefijo (copia propia en `~/.claude/agents/`), usar ese nombre. `Explore` va siempre sin prefijo.
 - Detalle y tabla de costos: `references/modelos.md`.
 
 ## 3. Flujo automático de cada tarea

@@ -46,7 +46,7 @@ El plugin trabaja en 4 capas:
 |---|---|---|
 | **Skill `oes-studio`** | Reglas de trabajo: quién hace qué, flujo, diseño, Graphify, consumo | `plugin/skills/oes-studio/` |
 | **Skill `consejo`** | Consejo de asesores para decisiones | `plugin/skills/consejo/` |
-| **Agentes** | 10 subagentes con su modelo y sus permisos (7 de trabajo + 3 del consejo) | se copian a `~/.claude/agents/` |
+| **Agentes** | 10 subagentes con su modelo y sus permisos (7 de trabajo + 3 del consejo) | vienen en el plugin (`plugin/agents/`, se llaman `oes:<agente>`); solo `Explore` se copia a `~/.claude/agents/` |
 | **Comandos** | 23 atajos `/oes:` para tareas frecuentes | `plugin/commands/` |
 | **Hooks y scripts** | Statusline, avisos de contexto y límites, registro de agentes, auditoría | `plugin/hooks/`, `plugin/scripts/` |
 
@@ -123,43 +123,93 @@ Detalle de cada comando, con lo que hace y los archivos que genera: **[docs/COMA
 
 ## Instalación (Windows)
 
-**Requisitos:** Claude Code instalado y con sesión iniciada, y Git para Windows (`winget install Git.Git`). El resto (Node, uv, gh, Bun) lo instala el setup.
+**Requisitos:** Windows 10 u 11 y una cuenta de Claude (Pro o Max). Todo lo demás se instala en los pasos.
 
-1. **Bajar el plugin.** Cloná o descargá este repo en una carpeta fija:
-   ```powershell
-   git clone https://github.com/Esyrium12/OES-Studio-skill.git "$env:USERPROFILE\OES-Studio-skill"
-   ```
-2. **Agregarlo a Claude Code:**
-   ```
-   /plugin marketplace add C:\Users\<tu usuario>\OES-Studio-skill
-   /plugin install oes@oes-studio
-   ```
-   También podés usar el repo directo: `/plugin marketplace add Esyrium12/OES-Studio-skill`.
-3. **Reiniciar Claude Code** y escribir `/oes:setup`:
-   - Si falta Node, primero instala los requisitos y te pide reiniciar.
-   - Muestra la auditoría y te pregunta qué quitar, qué no instalar y si querés el panel de agentes.
-   - Instala solo lo que falta y muestra una tabla con el resultado.
-4. **Reiniciar Claude Code** otra vez.
-5. **Cuentas** (solo las podés hacer vos):
-   - GitHub: `gh auth login` en tu terminal.
-   - Supabase y Vercel: escribí `/mcp` en Claude Code y autorizá cada uno.
-6. **Claves opcionales.** Cargalas como variables de entorno, nunca en el chat:
-   ```powershell
-   setx FIRECRAWL_API_KEY "tu-clave"     # leer webs y comparar con la competencia
-   setx ELEVENLABS_API_KEY "tu-clave"    # voz para /oes:social
-   ```
-   Después reiniciá la terminal y Claude Code, y repetí `/oes:setup`.
-7. **Comprobar que quedó bien:**
-   - Abajo aparece la statusline: `Opus │ ctx ███░░ 30% │ 5h 12% │ sem 4% │ $0.40`.
-   - `/agents` muestra los 10 agentes.
-   - `/oes:ayuda` muestra los comandos.
-8. **En cada proyecto:** abrí Claude Code en la carpeta y escribí `/oes:proyecto`.
+Usá **PowerShell normal**, desde el menú Inicio y sin "Ejecutar como administrador". El prompt tiene que mostrar `C:\Users\<tu usuario>`, no `C:\Windows\system32`.
 
-**Actualizar:** `git pull` en la carpeta, después `/plugin marketplace update oes-studio`, `/plugin update oes@oes-studio` y `/oes:setup`.
+Se escribe en dos lugares distintos:
+- **PowerShell:** `winget`, `gh`, `claude plugin …`.
+- **Claude Code:** se abre escribiendo `claude` en PowerShell. Los comandos que empiezan con `/`, como `/oes:setup`, van acá. En PowerShell dan error.
+
+1. **Herramientas** (PowerShell). Instalá Node y Git **antes** que el plugin: sus hooks usan Node desde el primer arranque.
+   ```powershell
+   "Git.Git","OpenJS.NodeJS.LTS","astral-sh.uv","GitHub.cli","Oven-sh.Bun" | % { winget install -e --id $_ --accept-source-agreements --accept-package-agreements }
+   ```
+2. **Claude Code** (PowerShell). Si ya lo tenés en la terminal, saltá este paso. La app de escritorio de Claude no agrega el comando `claude` a PowerShell.
+   ```powershell
+   irm https://claude.ai/install.ps1 | iex
+   ```
+3. **Cerrá PowerShell, abrí una nueva y comprobá:**
+   ```powershell
+   node --version; git --version; claude --version
+   ```
+   Tienen que aparecer las tres versiones. Si `claude` no se reconoce, mirá [Problemas frecuentes](#problemas-frecuentes).
+4. **GitHub** (PowerShell): `gh auth login`, y elegí GitHub.com → HTTPS → Login with a web browser.
+5. **Ver qué ya tenés** (PowerShell): `claude plugin list`. Si tu cuenta sincroniza plugins desde claude.ai, aparecen con `@synced`: anotalos. Si aparece `oes@synced`, saltá el paso 6.
+6. **Plugin OES** (PowerShell):
+   ```powershell
+   claude plugin marketplace add Esyrium12/OES-Studio-skill
+   ```
+   ```powershell
+   claude plugin install oes@oes-studio
+   ```
+7. **Setup** (Claude Code). Escribí `claude` y, adentro, `/oes:setup`. La primera vez Claude Code te pide el tema, iniciar sesión y confiar en la carpeta.
+   - Muestra la auditoría y pregunta qué quitar, qué no instalar y si querés el panel de agentes (recomendado: sí).
+   - **Qué no instalar:** marcá lo que en el paso 5 apareció con `@synced`. Si no apareció nada, no marques nada.
+   - Si abriste Claude Code en tu carpeta de usuario, los "duplicados" que muestra son falsos: no quites nada.
+   - Instala solo lo que falta, en unos minutos, y muestra una tabla con el resultado.
+8. **Reiniciá Claude Code:** `/exit` y después `claude`.
+9. **Supabase y Vercel** (Claude Code): `/mcp`, entrá a cada uno y elegí **Authenticate**.
+10. **Claves opcionales.** Cargalas como variables de entorno, nunca en el chat:
+    ```powershell
+    setx FIRECRAWL_API_KEY "tu-clave"     # leer webs y comparar con la competencia
+    setx ELEVENLABS_API_KEY "tu-clave"    # voz para /oes:social
+    ```
+    Después reiniciá la terminal y Claude Code, y repetí `/oes:setup`.
+11. **Comprobar que quedó bien:**
+    - Abajo aparece la statusline: `Opus │ ctx ███░░ 30% │ 5h 12% │ sem 4% │ $0.40`.
+    - En Claude Code, `!claude plugin details oes@oes-studio` muestra los 9 agentes del plugin: `oes:planner`, `oes:implementer`, `oes:reviewer`, `oes:designer`, `oes:tester`, `oes:notes`, `oes:consejero`, `oes:revisor-consejo` y `oes:presidente`. Las versiones nuevas de Claude Code ya no tienen `/agents`.
+    - `!ls ~/.claude/agents` muestra `Explore.md`, el décimo agente. Si instalaste impeccable, también aparecen sus agentes `impeccable-…`.
+    - `/oes:ayuda` muestra los comandos, incluido `/oes:consejo`.
+    - Al terminar cada respuesta no aparece "Stop hook failed".
+12. **En cada proyecto:** abrí PowerShell en la carpeta del proyecto, escribí `claude` y, la primera vez, `/oes:proyecto`.
+
+**Actualizar** (PowerShell):
+```powershell
+claude plugin marketplace update oes-studio
+```
+```powershell
+claude plugin update oes@oes-studio
+```
+Después abrí Claude Code y corré `/oes:setup`: saltea lo que ya está y copia los agentes nuevos.
+
+### Problemas frecuentes
+
+**`claude` no se reconoce en PowerShell.** Instala Claude Code si falta y agrega su carpeta al PATH de tu usuario. Después cerrá y abrí PowerShell:
+```powershell
+if (-not (Test-Path "$env:USERPROFILE\.local\bin\claude.exe")) { irm https://claude.ai/install.ps1 | iex }; $p = [Environment]::GetEnvironmentVariable('Path','User'); if ($p -notlike "*\.local\bin*") { [Environment]::SetEnvironmentVariable('Path', "$p;$env:USERPROFILE\.local\bin", 'User') }
+```
+
+**`/oes:setup` no se reconoce.** Lo escribiste en PowerShell. Primero abrí Claude Code con `claude` y escribilo adentro.
+
+**`Stop hook failed … impeccable: no engine binary for windows-x64`.** impeccable no bajó su programa para Windows. En PowerShell, con `gh` ya logueado:
+```powershell
+$d = "$env:USERPROFILE\.impeccable\bin"; New-Item -ItemType Directory -Force $d | Out-Null
+$t = (gh release list -R pbakaus/impeccable --limit 50 | Select-String 'engine-v[\d.]+' | Select-Object -First 1).Matches[0].Value
+gh release download $t -R pbakaus/impeccable -p "*windows-x64*" -D $d --clobber
+Get-ChildItem $d -Filter "*windows-x64*" | Where-Object { $_.Extension -in '','.exe' } | Select-Object -First 1 | Move-Item -Destination "$d\impeccable.exe" -Force; Get-ChildItem $d
+```
+Tiene que quedar `impeccable.exe` en esa carpeta.
+
+**La auditoría marca duplicados y estás en `C:\Users\<tu usuario>`.** Es falso: ahí la carpeta "de proyecto" y la "de usuario" son la misma, así que cada skill se cuenta dos veces. No quites nada.
+
+**La auditoría marca como "falta" algo que `claude plugin list` muestra con `@synced`.** Ya lo tenés, desde claude.ai. Elegí no instalarlo para no duplicarlo.
+
+**Cuadro de claude-mem con "30 Day Free Trial".** Es su servicio pago, y es opcional. La memoria funciona gratis en tu PC, y el cuadro desaparece cuando guarda su primer recuerdo.
 
 **Desinstalar:**
 - `/plugin uninstall oes@oes-studio`.
-- Borrar los 10 agentes de `~/.claude/agents/`.
+- Borrar `~/.claude/agents/Explore.md`.
 - Borrar el bloque `<!-- OES:START … OES:END -->` de `~/.claude/CLAUDE.md`.
 - Borrar `statusLine` de `~/.claude/settings.json`.
 - Borrar la carpeta `~/.claude/oes/`.
@@ -185,7 +235,8 @@ OES-Studio-skill/
 │   ├── .mcp.json                     # Supabase, Vercel, Context7
 │   ├── skills/oes-studio/            # skill principal + referencias (modelos, diseño, Obsidian, herramientas)
 │   ├── skills/consejo/               # consejo de asesores
-│   ├── agents-templates/             # 10 agentes
+│   ├── agents/                       # 9 agentes (oes:planner, oes:consejero…), cargan solos
+│   ├── agents-templates/             # Explore (el setup lo copia a ~/.claude/agents/)
 │   ├── commands/                     # 23 comandos /oes:
 │   ├── hooks/hooks.json              # inicio de sesión, prompt, agentes, cierre
 │   ├── scripts/                      # statusline, guardián, vigilador, auditoría, informes, setup.ps1, panel.ps1
@@ -208,6 +259,7 @@ Cada proyecto queda así: `CLAUDE.md` corto, más `docs/` con `plans/`, `decisio
 ## Limitaciones
 
 - Está pensado para **Windows**. Los scripts en Node funcionan en cualquier sistema; el instalador es PowerShell.
+- En **Claude Code en la nube** (sección Code de la app o claude.ai/code), el plugin sincronizado desde claude.ai carga los comandos `/oes:`, las skills, los hooks y los 9 agentes `oes:`. `/oes:setup` no corre ahí (no hay PowerShell): `Explore`, las reglas, Graphify y las skills de diseño se instalan con un script de entorno de la nube (ver [docs/NUBE.md](docs/NUBE.md)). La statusline y el panel no aplican. Cada sesión empieza en un contenedor nuevo.
 - El modo cavernícola ahorra poco por sí solo. Lo que más ahorra es delegar la lectura a `Explore` (Haiku), Graphify y compactar a tiempo.
 - TikTok solo publica en privado hasta que su API apruebe tu app. Instagram necesita cuenta profesional.
 - El costo que muestra la statusline con suscripción Pro/Max es "equivalente API": sirve para comparar, no es lo que pagás.

@@ -122,7 +122,8 @@ for (const e of ls(path.join(C, 'agents'))) {
   const t = (() => { try { return fs.readFileSync(path.join(C, 'agents', e.name), 'utf8'); } catch (_) { return ''; } })();
   const esOes = t.includes('equipo OES') || t.includes('Consejo OES');
   if (!OES_AG.includes(n) && esConocido(n)) { push('agente', n, 'usuario', 'útil', `Viene con ${esConocido(n)}`, 'dejar'); continue; }
-  if (OES_AG.includes(n)) push('agente', n, 'usuario', esOes ? 'útil' : 'duplicado', esOes ? 'Agente OES' : 'Mismo nombre que un agente OES: se reemplazará (con copia .bak)', esOes ? 'dejar' : 'reemplazar');
+  if (n !== 'Explore' && OES_AG.includes(n)) push('agente', n, 'usuario', esOes ? 'duplicado' : 'neutro', esOes ? `Copia vieja: ahora viene en el plugin como oes:${n}` : `Agente propio; convive con oes:${n}`, esOes ? 'setup la pasa a backup' : 'decidir');
+  else if (OES_AG.includes(n)) push('agente', n, 'usuario', esOes ? 'útil' : 'duplicado', esOes ? 'Agente OES' : 'Mismo nombre que un agente OES: se reemplazará (con copia .bak)', esOes ? 'dejar' : 'reemplazar');
   else push('agente', n, 'usuario', 'neutro', 'Agente propio no OES', 'decidir');
 }
 
