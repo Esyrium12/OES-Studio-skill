@@ -46,7 +46,7 @@ El plugin trabaja en 4 capas:
 |---|---|---|
 | **Skill `oes-studio`** | Reglas de trabajo: quién hace qué, flujo, diseño, Graphify, consumo | `plugin/skills/oes-studio/` |
 | **Skill `consejo`** | Consejo de asesores para decisiones | `plugin/skills/consejo/` |
-| **Agentes** | 10 subagentes con su modelo y sus permisos (7 de trabajo + 3 del consejo) | se copian a `~/.claude/agents/` |
+| **Agentes** | 10 subagentes con su modelo y sus permisos (7 de trabajo + 3 del consejo) | vienen en el plugin (`plugin/agents/`, se llaman `oes:<agente>`); solo `Explore` se copia a `~/.claude/agents/` |
 | **Comandos** | 23 atajos `/oes:` para tareas frecuentes | `plugin/commands/` |
 | **Hooks y scripts** | Statusline, avisos de contexto y límites, registro de agentes, auditoría | `plugin/hooks/`, `plugin/scripts/` |
 
@@ -168,7 +168,8 @@ Se escribe en dos lugares distintos:
     Después reiniciá la terminal y Claude Code, y repetí `/oes:setup`.
 11. **Comprobar que quedó bien:**
     - Abajo aparece la statusline: `Opus │ ctx ███░░ 30% │ 5h 12% │ sem 4% │ $0.40`.
-    - En Claude Code, `!ls ~/.claude/agents` muestra los 10 agentes de OES: `Explore`, `planner`, `implementer`, `reviewer`, `designer`, `tester`, `notes`, `consejero`, `revisor-consejo` y `presidente`. Las versiones nuevas de Claude Code ya no tienen `/agents`. Si instalaste impeccable, también aparecen sus agentes `impeccable-…`.
+    - En Claude Code, `!claude plugin details oes@oes-studio` muestra los 9 agentes del plugin: `oes:planner`, `oes:implementer`, `oes:reviewer`, `oes:designer`, `oes:tester`, `oes:notes`, `oes:consejero`, `oes:revisor-consejo` y `oes:presidente`. Las versiones nuevas de Claude Code ya no tienen `/agents`.
+    - `!ls ~/.claude/agents` muestra `Explore.md`, el décimo agente. Si instalaste impeccable, también aparecen sus agentes `impeccable-…`.
     - `/oes:ayuda` muestra los comandos, incluido `/oes:consejo`.
     - Al terminar cada respuesta no aparece "Stop hook failed".
 12. **En cada proyecto:** abrí PowerShell en la carpeta del proyecto, escribí `claude` y, la primera vez, `/oes:proyecto`.
@@ -208,7 +209,7 @@ Tiene que quedar `impeccable.exe` en esa carpeta.
 
 **Desinstalar:**
 - `/plugin uninstall oes@oes-studio`.
-- Borrar los 10 agentes de `~/.claude/agents/`.
+- Borrar `~/.claude/agents/Explore.md`.
 - Borrar el bloque `<!-- OES:START … OES:END -->` de `~/.claude/CLAUDE.md`.
 - Borrar `statusLine` de `~/.claude/settings.json`.
 - Borrar la carpeta `~/.claude/oes/`.
@@ -234,7 +235,8 @@ OES-Studio-skill/
 │   ├── .mcp.json                     # Supabase, Vercel, Context7
 │   ├── skills/oes-studio/            # skill principal + referencias (modelos, diseño, Obsidian, herramientas)
 │   ├── skills/consejo/               # consejo de asesores
-│   ├── agents-templates/             # 10 agentes
+│   ├── agents/                       # 9 agentes (oes:planner, oes:consejero…), cargan solos
+│   ├── agents-templates/             # Explore (el setup lo copia a ~/.claude/agents/)
 │   ├── commands/                     # 23 comandos /oes:
 │   ├── hooks/hooks.json              # inicio de sesión, prompt, agentes, cierre
 │   ├── scripts/                      # statusline, guardián, vigilador, auditoría, informes, setup.ps1, panel.ps1
@@ -257,7 +259,7 @@ Cada proyecto queda así: `CLAUDE.md` corto, más `docs/` con `plans/`, `decisio
 ## Limitaciones
 
 - Está pensado para **Windows**. Los scripts en Node funcionan en cualquier sistema; el instalador es PowerShell.
-- En **Claude Code en la nube** (sección Code de la app o claude.ai/code), el plugin sincronizado desde claude.ai carga los comandos `/oes:`, las skills y los hooks. `/oes:setup` no corre ahí (no hay PowerShell), así que faltan los 10 agentes, las skills y plugins extra, y la statusline. Además, cada sesión empieza en un contenedor nuevo.
+- En **Claude Code en la nube** (sección Code de la app o claude.ai/code), el plugin sincronizado desde claude.ai carga los comandos `/oes:`, las skills, los hooks y los 9 agentes `oes:`. `/oes:setup` no corre ahí (no hay PowerShell): `Explore`, las reglas, Graphify y las skills de diseño se instalan con un script de entorno de la nube (ver [docs/NUBE.md](docs/NUBE.md)). La statusline y el panel no aplican. Cada sesión empieza en un contenedor nuevo.
 - El modo cavernícola ahorra poco por sí solo. Lo que más ahorra es delegar la lectura a `Explore` (Haiku), Graphify y compactar a tiempo.
 - TikTok solo publica en privado hasta que su API apruebe tu app. Instagram necesita cuenta profesional.
 - El costo que muestra la statusline con suscripción Pro/Max es "equivalente API": sirve para comparar, no es lo que pagás.

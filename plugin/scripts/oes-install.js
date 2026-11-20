@@ -23,6 +23,8 @@ for (const f of ['lib.js', 'statusline.js', 'report-usage.js', 'report-agents.js
 ok('Scripts en ~/.claude/oes/bin', 'actualizado');
 
 // 2. Agentes
+// Los agentes OES vienen dentro del plugin (plugin/agents/, se llaman oes:<nombre>) y cargan solos, también en la nube.
+// Solo Explore se copia a ~/.claude/agents/: un agente de plugin no puede reemplazar al Explore integrado.
 if (!args.includes('--no-agents')) {
   const ad = path.join(C, 'agents'); L.ensureDir(ad);
   for (const f of fs.readdirSync(path.join(ROOT, 'agents-templates'))) {
@@ -30,6 +32,15 @@ if (!args.includes('--no-agents')) {
     if (same(src, dst)) { ok('Agente ' + f.replace('.md', ''), 'ya estaba'); continue; }
     const had = backup(dst); fs.copyFileSync(src, dst);
     ok('Agente ' + f.replace('.md', ''), had ? 'reemplazado (copia en backup)' : 'instalado');
+  }
+  // Copias viejas (versiones ≤ 1.2.0) de los agentes que ahora trae el plugin: si quedan, aparecen dos veces (planner y oes:planner).
+  for (const f of fs.readdirSync(path.join(ROOT, 'agents'))) {
+    const dst = path.join(ad, f), n = f.replace('.md', '');
+    if (!fs.existsSync(dst)) { ok('Agente oes:' + n, 'en el plugin'); continue; }
+    const t = fs.readFileSync(dst, 'utf8');
+    if (same(path.join(ROOT, 'agents', f), dst) || t.includes('equipo OES') || t.includes('Consejo OES')) {
+      backup(dst); fs.unlinkSync(dst); ok('Agente oes:' + n, 'en el plugin (copia vieja de ~/.claude/agents a backup)');
+    } else ok('Agente ' + n, 'copia propia en ~/.claude/agents: no se tocó (convive con oes:' + n + ')');
   }
 }
 

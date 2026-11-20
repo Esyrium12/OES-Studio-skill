@@ -26,5 +26,5 @@
 - Alternativa: `/model opusplan` (Opus en modo plan, Sonnet al ejecutar).
 
 ## Ajustes
-- Cambiar el modelo de un agente: editar `model:` en `~/.claude/agents/<agente>.md` (`haiku`, `sonnet`, `opus`, `inherit`).
+- Cambiar el modelo de un agente: copiar `plugin/agents/<agente>.md` a `~/.claude/agents/` y editar `model:` (`haiku`, `sonnet`, `opus`, `inherit`). La copia se usa con el nombre sin prefijo. Para `Explore`, editar `~/.claude/agents/Explore.md`.
 - No usar `CLAUDE_CODE_SUBAGENT_MODEL`: pisa la asignación por agente.
