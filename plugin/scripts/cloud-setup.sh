@@ -10,6 +10,8 @@ git clone -q --depth 1 https://github.com/Esyrium12/OES-Studio-skill "$OES" || e
 # Graphify antes que oes-install: "graphify install" reescribe ~/.claude/CLAUDE.md
 uv tool install -q graphifyy && /root/.local/bin/graphify install >/dev/null || true
 node "$OES/plugin/scripts/oes-install.js" --no-statusline || true
-npx -y skills@latest add emilkowalski/skills -g -a claude-code -y -s emil-design-eng -s animate -s review-animations -s improve-animations -s find-animation-opportunities -s apple-design -s mobile-native -s break-ui -s animation-vocabulary -s pick-ui-library >/dev/null || true
+npx -y skills@latest add emilkowalski/skills -g -a claude-code -y \
+  -s emil-design-eng -s animate -s review-animations -s improve-animations -s find-animation-opportunities \
+  -s apple-design -s mobile-native -s break-ui -s animation-vocabulary -s pick-ui-library >/dev/null || true
 claude plugin marketplace add JuliusBrussee/caveman >/dev/null && claude plugin install caveman@caveman >/dev/null || true
 exit 0
