@@ -23,7 +23,7 @@ Todos se escriben en Claude Code. Los que reciben un argumento lo llevan despué
 - **útil:** parte del sistema o necesario.
 - **neutro:** no molesta; decidís vos.
 - **conviene quitar:** pisa algo, falla o no aplica (ej. OmniRoute, MemPalace, `CLAUDE_CODE_SUBAGENT_MODEL`).
-- **duplicado:** dos cosas que hacen lo mismo (dos Playwright, skill y plugin iguales, dos statuslines).
+- **duplicado:** dos cosas que hacen lo mismo (dos Playwright, skill y plugin iguales, dos statuslines, el mismo conector MCP en dos plugins: por ejemplo Supabase en OES y en el plugin oficial `supabase`). En los conectores de plugins dice de qué plugin viene cada copia.
 - **falta:** se instala con el setup.
 
 No cambia nada sin tu respuesta.

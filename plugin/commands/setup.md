@@ -16,6 +16,7 @@ Pasos, en orden, respuestas en modo cavernícola:
 3. **Quitar lo aprobado** (solo eso), con copia previa en `~/.claude/oes/backup/`:
    - plugin: `claude plugin uninstall <nombre>`
    - conector: `claude mcp remove <nombre> -s <user|local|project>`
+   - conector de un plugin (`plugin:<plugin>:<servidor>`, ej. `plugin:oes:supabase` cuando está el plugin oficial de Supabase): no se borra con `claude mcp remove`; pasarlo a la lista del paso 6 (`/mcp disable <nombre>`, lo hace el usuario)
    - skill: mover la carpeta de `~/.claude/skills/<nombre>` a `~/.claude/oes/backup/skills/`
    - config o hook: editar `~/.claude/settings.json` (copia antes)
 4. **Instalar lo que falta**:
@@ -26,4 +27,5 @@ Pasos, en orden, respuestas en modo cavernícola:
    - Reiniciar Claude Code.
    - `gh auth login` en su terminal si GitHub figura sin sesión.
    - `/mcp` → autorizar Supabase y Vercel.
+   - Si la auditoría marcó un conector `plugin:...` como duplicado y lo aprobó para quitar: `/mcp disable <nombre>` (vale para el proyecto actual; repetirlo en cada proyecto).
    - Opcional: definir `FIRECRAWL_API_KEY` en variables de entorno de Windows y repetir `/oes:setup`.

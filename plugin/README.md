@@ -46,6 +46,7 @@ Guía completa: [README del repo](../README.md) · [Comandos en detalle](../docs
 
 - **Agentes** (`~/.claude/agents/`): Explore (Haiku), planner (Opus), implementer (Sonnet; Opus en código crítico), reviewer, designer, tester (Sonnet), notes (Haiku).
 - **Conectores**: Supabase, Vercel, Context7 (en el plugin), Playwright (plugin oficial), Firecrawl si definís `FIRECRAWL_API_KEY`. GitHub con `gh`.
+  - **Si tenés el plugin oficial de Supabase** (`supabase@synced` desde claude.ai o `supabase@<marketplace>`): ese plugin ya trae el mismo conector (`https://mcp.supabase.com/mcp`) y sus skills, así que la copia de OES sobra. `/oes:auditar` la marca como `duplicado`; apagala con `/mcp disable plugin:oes:supabase` (se guarda por proyecto) y no instales Supabase agent-skills aparte. OES sigue declarando `supabase` en `.mcp.json` para quien no tiene el plugin oficial.
 - **Plugins**: caveman, claude-mem, claude-code-setup, frontend-design, figma, playwright.
 - **Skills**: impeccable (con hook de diseño), Emil Kowalski (emil-design-eng, animate, review-animations, improve-animations, find-animation-opportunities, apple-design, mobile-native, break-ui, animation-vocabulary, pick-ui-library), Supabase agent-skills, Graphify.
 - **Configuración**: bloque OES en `~/.claude/CLAUDE.md` (respeta lo tuyo), reglas de código en `~/.claude/rules/oes/`, statusline OES. Todo lo reemplazado queda en `~/.claude/oes/backup/`.

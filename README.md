@@ -152,7 +152,7 @@ Detalle de cada comando, con lo que hace y los archivos que genera: **[docs/COMA
 
 | Tipo | Elementos |
 |---|---|
-| Conectores | Supabase, Vercel y Context7 (vienen en el plugin), Playwright (plugin oficial), Firecrawl (solo si hay clave). GitHub vía `gh` |
+| Conectores | Supabase, Vercel y Context7 (vienen en el plugin), Playwright (plugin oficial), Firecrawl (solo si hay clave). GitHub vía `gh`. Con el plugin oficial de Supabase, el Supabase de OES sobra: `/mcp disable plugin:oes:supabase` |
 | Plugins | caveman, claude-mem, claude-code-setup, frontend-design, figma, playwright |
 | Skills | impeccable (con hook de diseño), las de Emil Kowalski (emil-design-eng, animate, review-animations, improve-animations, find-animation-opportunities, apple-design, mobile-native, break-ui, animation-vocabulary, pick-ui-library), Supabase agent-skills, Graphify |
 | Configuración | Bloque OES en `~/.claude/CLAUDE.md` (lo tuyo se conserva), reglas de código en `~/.claude/rules/oes/`, statusline |

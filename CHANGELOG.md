@@ -1,5 +1,10 @@
 # Cambios
 
+## Sin publicar
+- `inventory.js` lee los conectores MCP de los plugins cargados (sincronizados desde claude.ai en `~/.claude/plugins/synced/` e instalados en `~/.claude/plugins/cache/`) y marca como `duplicado` el mismo servidor en dos plugins, o en un plugin y en tu config (usuario, local o proyecto), diciendo de qué plugin viene cada copia.
+- Con el plugin oficial de Supabase cargado, el `supabase` de OES se reporta como sobrante (`/mcp disable plugin:oes:supabase`) y ya no se pide instalar Supabase agent-skills.
+- Arreglo: la acción para quitar un conector de proyecto decía `-s proyecto`; ahora `-s project`.
+
 ## 1.1.0 — 2026-11-18
 - Comandos cortos `/oes:`.
 - Nuevos: `dato`, `idea`, `limite`, `continuar`, `resumen`, `analisis`, `opinion`, `social`, `feature`, `bug`, `commit`, `deploy`, `ayuda`.
